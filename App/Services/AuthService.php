@@ -15,11 +15,12 @@ class AuthService {
         $user = $this->repository->findByEmail($email);
         if (!$user) return null;
 
-        if (!password_verify($password, $user['password'])) return null;
+        if (!password_verify($password, $user['password_hash'])) return null;
 
         return JWT::generate([
             "sub" => $user['id'],
-            "email" => $user['email']
+            "email" => $user['email'],
+            "role" => $user['role']
         ]);
     }
 }

@@ -18,6 +18,7 @@ class AuthController {
         if (!isset($data['email'], $data['password'])) {
             $res->status(400);
             $res->json(["error" => "Invalid payload"]);
+            return;
         }
 
         $token = $this->authService->attempt(
@@ -28,6 +29,7 @@ class AuthController {
         if (!$token) {
             $res->status(401);
             $res->json(["error" => "Invalid credentials"]);
+            return;
         }
 
         $res->status(200);

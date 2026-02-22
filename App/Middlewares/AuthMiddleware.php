@@ -10,13 +10,13 @@ class AuthMiddleware implements Middleware {
     public function handle(Request $req, Response $res, callable $next): void {
         $headers = $req->headers;
 
-        if (!isset($headers['Authorization'])) {
+        if (!isset($headers['authorization'])) {
             $res->status(401);
             $res->json(["error" => "Unauthorized"]);
             return;
         }
 
-        $token = str_replace("Bearer ", "", $headers['Authorization']);
+        $token = str_replace("Bearer ", "", $headers['authorization']);
 
         $payload = JWT::validate($token);
 

@@ -6,6 +6,7 @@ CREATE TABLE users (
     name VARCHAR(128) NOT NULL,
     email VARCHAR(128) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    role ENUM('User', 'Admin') DEFAULT 'User',
     craeted_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
