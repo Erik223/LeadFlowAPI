@@ -1,6 +1,5 @@
 ### PHP API ###
 
-config.php
 /vendor/
 .env
 *.log
