@@ -1,5 +1,5 @@
 <?php
-namespace app\core;
+namespace App\Core;
 
 class Env {
     public static function load(string $path): void {

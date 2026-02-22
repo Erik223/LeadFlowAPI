@@ -1,5 +1,5 @@
 <?php
-namespace app\core;
+namespace App\Core;
 
 class Response {
     private int $status = 200;

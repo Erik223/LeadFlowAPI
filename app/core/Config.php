@@ -1,5 +1,5 @@
 <?php
-namespace app\core;
+namespace App\Core;
 
 class Config {
     public static function db(): array {

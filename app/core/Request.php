@@ -1,5 +1,5 @@
 <?php
-namespace app\core;
+namespace App\Core;
 
 class Request {
     public string $method;
