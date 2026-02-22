@@ -1,8 +1,10 @@
 <?php
 use App\Core\Router;
 use App\Controllers\UserController;
+use App\Middlewares\AuthMiddleware;
 
 $user = new UserController();
+$auth = new AuthMiddleware();
 $router = new Router();
 
 $router->get("/users", fn($req, $res) => $user->index($req, $res));

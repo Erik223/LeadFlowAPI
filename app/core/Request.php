@@ -7,6 +7,7 @@ class Request {
     public array $headers;
     public array $body;
     public array $params = [];
+    public array $user = [];
 
     public function __construct() {
         $this->method = $_SERVER['REQUEST_METHOD'];

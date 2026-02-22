@@ -48,7 +48,7 @@ class Router {
         $this->runNext($stack, $req, $res);
     }
 
-    private function runNext(array &$stack, Request $req, Response $res) {
+    private function runNext(array &$stack, Request &$req, Response &$res) {
         $actualCall = array_shift($stack);
 
         if (!$actualCall) return;
