@@ -87,3 +87,4 @@ class UserController {
         $res->json(["deleted" => $deleted]);
     }
 }
+?>
