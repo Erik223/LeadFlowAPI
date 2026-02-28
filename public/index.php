@@ -10,4 +10,11 @@ $req = new Request();
 $res = new Response();
 
 require __DIR__ . "/../routes.php";
-$router->run($req, $res);
+
+try {
+    $router->run($req, $res);
+}
+catch(Exception $error) {
+    $res->status(500);
+    $res->json(["error" => $error->getMessage()]);
+}
