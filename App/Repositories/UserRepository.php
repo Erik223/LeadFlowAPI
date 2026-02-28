@@ -2,6 +2,8 @@
 namespace App\Repositories;
 
 use App\Core\Database;
+use App\Models\User;
+use App\Models\UserRole;
 use PDO;
 
 class UserRepository {
@@ -11,35 +13,59 @@ class UserRepository {
         $this->pdo = Database::connection();
     }
 
+    private function mapRowToEntity(array $row): User {
+        return new User(
+            name: $row['name'],
+            email: $row['email'],
+            passwordHash: $row['password_hash'],
+            role: UserRole::from($row['role'])
+        );
+    }
+
     public function findAll(): array {
         $stmt = $this->pdo->prepare("SELECT * FROM users");
         $stmt->execute([]);
 
-        return $stmt->fetchAll();
+        $rows = $stmt->fetchAll();
+
+        $all = [];
+        foreach ($rows as $row) { $all[] = $this->mapRowToEntity($row); }
+
+        return $all;
     }
 
-    public function findById(int $id): ?array {
+    public function findById(int $id): ?User {
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = ?");
         $stmt->execute([$id]);
 
-        return $stmt->fetch() ?: null;
+        $row = $stmt->fetch();
+        if (!$row) return null;
+
+        return $this->mapRowToEntity($row);
     }
 
-    public function findByEmail(string $email): ?array {
+    public function findByEmail(string $email): ?User {
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
 
-        return $stmt->fetch() ?: null;
+        $row = $stmt->fetch();
+        if (!$row) return null;
+
+        return $this->mapRowToEntity($row);
     }
 
-    public function create(array $data): int {
-        $stmt = $this->pdo->prepare("INSERT INTO users(name, email, password_hash) VALUES (?, ?, ?)");
-        $stmt->execute([$data['name'], $data['email'], $data['password']]);
+    public function create(User $user): int {
+        $data = $user->toArray();
+
+        $stmt = $this->pdo->prepare("INSERT INTO users(name, email, password_hash, role) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$data['name'], $data['email'], $data['password_hash'], $data['role']]);
 
         return (int) $this->pdo->lastInsertId();
     }
 
-    public function update(int $id, array $data): bool {
+    public function update(int $id, User $user): bool {
+        $data = $user->toArray();
+
         $stmt = $this->pdo->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
         $success = $stmt->execute([$data['name'], $data['email'], $id]);
 

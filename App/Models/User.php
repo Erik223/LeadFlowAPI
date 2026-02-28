@@ -41,7 +41,7 @@ class User {
             "name" => $this->name,
             "email" => $this->email,
             "password_hash" => $this->passwordHash,
-            "role" => $this->role
+            "role" => $this->role->value
         ];
     }
 }
