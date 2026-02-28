@@ -3,8 +3,10 @@ namespace App\Controllers;
 
 use App\Core\Request;
 use App\Core\Response;
+use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Services\PolicyService;
+use Throwable;
 
 class UserController {
     private UserRepository $repository;
@@ -20,8 +22,13 @@ class UserController {
             return;
         }
 
+        $users = $this->repository->findAll();
+
+        $all = [];
+        foreach ($users as $user) { $all[] = $user->toArray(); }
+
         $res->status(200);
-        $res->json($this->repository->findAll());
+        $res->json($all);
     }
 
     public function show(Request $req, Response $res) {
@@ -41,35 +48,51 @@ class UserController {
         }
 
         $res->status(200);
-        $res->json($user);
+        $res->json($user->toArray());
     }
 
     public function store(Request $req, Response $res) {
-        $data = $req->body;
+        try {
+            $data = $req->body;
 
-        $hash = password_hash($data['password'], PASSWORD_DEFAULT);
-        $data['password'] = $hash;
+            $hash = password_hash($data['password'], PASSWORD_DEFAULT);
+            $data['password'] = $hash;
 
-        $id = $this->repository->create($data);
+            $user = new User(name: $data['name'], email: $data['email'], passwordHash: $data['password']);
 
-        $res->status(201);
-        $res->json(["id" => $id]);
+            $id = $this->repository->create($user);
+
+            $res->status(201);
+            $res->json(["id" => $id]);
+        }
+        catch (Throwable $error) {
+            $res->status(422);
+            $res->json(["error" => $error->getMessage()]);
+        }
     }
 
     public function update(Request $req, Response $res) {
-        $id = $req->params['id'];
-        $data = $req->body;
+        try {
+            $id = $req->params['id'];
+            $data = $req->body;
 
-        if (!PolicyService::canUpdate($req->user, $id)) {
-            $res->status(403);
-            $res->json(["error" => "Forbidden"]);
-            return;
+            if (!PolicyService::canUpdate($req->user, $id)) {
+                $res->status(403);
+                $res->json(["error" => "Forbidden"]);
+                return;
+            }
+
+            $user = new User(name: $data['name'], email: $data['email'], passwordHash: $data['password']);
+
+            $updated = $this->repository->update($id, $user);
+
+            $res->status(200);
+            $res->json(["updated" => $updated]);
         }
-
-        $updated = $this->repository->update($id, $data);
-
-        $res->status(200);
-        $res->json(["updated" => $updated]);
+        catch (Throwable $error) {
+            $res->status(422);
+            $res->json(["error" => $error->getMessage()]);
+        }
     }
 
     public function destroy(Request $req, Response $res) {

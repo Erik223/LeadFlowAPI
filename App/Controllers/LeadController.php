@@ -3,8 +3,11 @@ namespace App\Controllers;
 
 use App\Core\Request;
 use App\Core\Response;
+use App\Models\Lead;
+use App\Models\LeadStatus;
 use App\Repositories\LeadRepository;
 use App\Services\PolicyService;
+use Throwable;
 
 class LeadController {
     private LeadRepository $repository;
@@ -32,9 +35,12 @@ class LeadController {
             $total = $this->repository->countByUser($user['sub']);
         }
 
+        $all = [];
+        foreach ($leads as $lead) { $all[] = $lead->toArray(); }
+
         $res->status(200);
         $res->json([
-            "data" => $leads,
+            "data" => $all,
             "meta" => [
                 "page" => $page,
                 "limit" => $limit,
@@ -53,25 +59,31 @@ class LeadController {
             return;
         }
 
-        if (!PolicyService::canView($req->user, $lead['user_id'])) {
+        if (!PolicyService::canView($req->user, $lead->getUserId())) {
             $res->status(403);
             $res->json(["error" => "Forbidden"]);
             return;
         }
 
         $res->status(200);
-        $res->json($lead);
+        $res->json($lead->toArray());
     }
 
     public function store(Request $req, Response $res) {
-        $data = $req->body;
+        try {
+            $data = $req->body;
 
-        $data['user_id'] = $req->user['sub'];
+            $lead = new Lead(name: $data['name'], company: $data['company'], userId: $req->user['sub'], email: $data['email'], phone: $data['phone'], source: $data['source'], notes: $data['notes'], status: isset($data['status']) ? LeadStatus::from($data['status']) : LeadStatus::NEW);
 
-        $id = $this->repository->create($data);
+            $id = $this->repository->create($lead);
 
-        $res->status(201);
-        $res->json(["id" => $id]);
+            $res->status(201);
+            $res->json(["id" => $id]);
+        }
+        catch (Throwable $error) {
+            $res->status(422);
+            $res->json(["error" => $error->getMessage()]);
+        }
     }
 
     public function update(Request $req, Response $res) {
@@ -85,13 +97,15 @@ class LeadController {
             return;
         }
 
-        if (!PolicyService::canUpdate($req->user, $lead['user_id'])) {
+        if (!PolicyService::canUpdate($req->user, $lead->getUserId())) {
             $res->status(403);
             $res->json(["error" => "Forbidden"]);
             return;
         }
 
-        $updated = $this->repository->update($id, $data);
+        $leadUpdate = new Lead(name: $data['name'], company: $data['company'], userId: $req->user['sub'], email: $data['email'], phone: $data['phone'], source: $data['source'], notes: $data['notes'], status: isset($data['status']) ? LeadStatus::from($data['status']) : LeadStatus::NEW);
+
+        $updated = $this->repository->update($id, $leadUpdate);
 
         $res->status(200);
         $res->json(["updated" => $updated]);

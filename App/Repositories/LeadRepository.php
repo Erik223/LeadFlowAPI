@@ -22,7 +22,8 @@ class LeadRepository {
             phone: $row['phone'],
             source: $row['source'],
             notes: $row['notes'],
-            status: LeadStatus::from($row['status'])
+            status: LeadStatus::from($row['status']),
+            id: $row['id']
         );
     }
 

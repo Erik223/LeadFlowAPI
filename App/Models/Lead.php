@@ -4,6 +4,7 @@ namespace App\Models;
 use InvalidArgumentException;
 
 class Lead {
+    private ?int $id;
     private string $name;
     private string $company;
     private ?string $email;
@@ -13,7 +14,7 @@ class Lead {
     private ?string $notes;
     private int $userId;
 
-    public function __construct(string $name, string $company, int $userId, ?string $email = null, ?string $phone = null, ?string $source = null, ?string $notes = null, LeadStatus $status = LeadStatus::NEW,) {
+    public function __construct(string $name, string $company, int $userId, ?string $email = null, ?string $phone = null, ?string $source = null, ?string $notes = null, LeadStatus $status = LeadStatus::NEW, ?int $id = null) {
         $this->setName($name);
         $this->setCompany($company);
 
@@ -23,8 +24,10 @@ class Lead {
         $this->source = $source;
         $this->notes = $notes;
         $this->status = $status;
+        $this->id = $id;
     }
 
+    public function getId(): int { return $this->id; }
     public function getName(): string { return $this->name; }
     public function getCompany(): string { return $this->company; }
     public function getUserId(): int { return $this->userId; }

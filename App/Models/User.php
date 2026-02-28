@@ -4,19 +4,22 @@ namespace App\Models;
 use InvalidArgumentException;
 
 class User {
+    private ?int $id;
     private string $name;
     private string $email;
     private string $passwordHash;
     private UserRole $role;
 
-    public function __construct(string $name, string $email, string $passwordHash, UserRole $role = UserRole::USER) {
+    public function __construct(string $name, string $email, string $passwordHash, UserRole $role = UserRole::USER, ?int $id = null) {
         $this->setName($name);
         $this->setEmail($email);
 
         $this->passwordHash = $passwordHash;
         $this->role = $role;
+        $this->id = $id;
     }
 
+    public function getId(): int { return $this->id; }
     public function getName(): string { return $this->name; }
     public function getEmail(): string { return $this->email; }
     public function getPasswordHash(): string { return $this->passwordHash; }

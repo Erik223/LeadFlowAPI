@@ -18,7 +18,8 @@ class UserRepository {
             name: $row['name'],
             email: $row['email'],
             passwordHash: $row['password_hash'],
-            role: UserRole::from($row['role'])
+            role: UserRole::from($row['role']),
+            id: $row['id']
         );
     }
 
