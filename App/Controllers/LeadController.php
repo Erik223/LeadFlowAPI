@@ -73,7 +73,18 @@ class LeadController {
         try {
             $data = $req->body;
 
-            $lead = new Lead(name: $data['name'], company: $data['company'], userId: $req->user['sub'], email: $data['email'], phone: $data['phone'], source: $data['source'], notes: $data['notes'], status: isset($data['status']) ? LeadStatus::from($data['status']) : LeadStatus::NEW);
+            $lead = new Lead(
+                name: $data['name'], 
+                company: $data['company'], 
+                userId: $req->user['sub'], 
+                email: $data['email'] ?? null, 
+                phone: $data['phone'] ?? null, 
+                source: $data['source'] ?? null, 
+                notes: $data['notes'] ?? null, 
+                status: isset($data['status']) 
+                    ? LeadStatus::from($data['status']) 
+                    : LeadStatus::NEW
+            );
 
             $id = $this->repository->create($lead);
 
@@ -103,9 +114,20 @@ class LeadController {
             return;
         }
 
-        $leadUpdate = new Lead(name: $data['name'], company: $data['company'], userId: $req->user['sub'], email: $data['email'], phone: $data['phone'], source: $data['source'], notes: $data['notes'], status: isset($data['status']) ? LeadStatus::from($data['status']) : LeadStatus::NEW);
+        $updatedLead = $lead->copy(
+            name: $data['name'] ?? null, 
+            company: $data['company'] ?? null, 
+            userId: $req->user['sub'] ?? null, 
+            email: $data['email'] ?? null, 
+            phone: $data['phone'] ?? null, 
+            source: $data['source'] ?? null, 
+            notes: $data['notes'] ?? null, 
+            status: isset($data['status']) 
+                ? LeadStatus::from($data['status']) 
+                : null
+        );
 
-        $updated = $this->repository->update($id, $leadUpdate);
+        $updated = $this->repository->update($id, $updatedLead);
 
         $res->status(200);
         $res->json(["updated" => $updated]);
@@ -121,7 +143,7 @@ class LeadController {
             return;
         }
 
-        if (!PolicyService::canDelete($req->user, $lead['user_id'])) {
+        if (!PolicyService::canDelete($req->user, $lead->getUserId())) {
             $res->status(403);
             $res->json(["error" => "Forbidden"]);
             return;

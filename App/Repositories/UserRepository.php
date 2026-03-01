@@ -18,6 +18,8 @@ class UserRepository {
             name: $row['name'],
             email: $row['email'],
             passwordHash: $row['password_hash'],
+            createdAt: $row['created_at'],
+            updatedAt: $row['updated_at'],
             role: UserRole::from($row['role']),
             id: $row['id']
         );
@@ -67,8 +69,8 @@ class UserRepository {
     public function update(int $id, User $user): bool {
         $data = $user->toArray();
 
-        $stmt = $this->pdo->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
-        $success = $stmt->execute([$data['name'], $data['email'], $id]);
+        $stmt = $this->pdo->prepare("UPDATE users SET name = ?, email = ?, password_hash = ? WHERE id = ?");
+        $success = $stmt->execute([$data['name'], $data['email'], $data['password_hash'], $id]);
 
         return $success;
     }

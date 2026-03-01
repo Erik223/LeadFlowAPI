@@ -22,6 +22,8 @@ class LeadRepository {
             phone: $row['phone'],
             source: $row['source'],
             notes: $row['notes'],
+            createdAt: $row['created_at'],
+            updatedAt: $row['updated_at'],
             status: LeadStatus::from($row['status']),
             id: $row['id']
         );
@@ -71,8 +73,8 @@ class LeadRepository {
     public function create(Lead $lead): int {
         $data = $lead->toArray();
 
-        $stmt = $this->pdo->prepare("INSERT INTO leads(name, company, email, phone, source, status, notes, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$data['name'], $data['company'], $data['email'], $data['phone'], $data['source'], $data['status'], $data['notes'], $data['user_id']]);
+        $stmt = $this->pdo->prepare("INSERT INTO leads(name, company, email, phone, source, notes, status, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$data['name'], $data['company'], $data['email'], $data['phone'], $data['source'], $data['notes'], $data['status'], $data['user_id']]);
 
         return (int) $this->pdo->lastInsertId();
     }
@@ -80,8 +82,8 @@ class LeadRepository {
     public function update(int $id, Lead $lead): bool {
         $data = $lead->toArray();
 
-        $stmt = $this->pdo->prepare("UPDATE leads SET name = ?, company = ?, email = ?, phone = ?, source = ?, status = ?, notes = ? WHERE id = ?");
-        $success = $stmt->execute([$data['name'], $data['company'], $data['email'], $data['phone'], $data['source'], $data['status'], $data['notes'], $id]);
+        $stmt = $this->pdo->prepare("UPDATE leads SET name = ?, company = ?, email = ?, phone = ?, source = ?, notes = ?, status = ? WHERE id = ?");
+        $success = $stmt->execute([$data['name'], $data['company'], $data['email'], $data['phone'], $data['source'], $data['notes'], $data['status'], $id]);
 
         return $success;
     }

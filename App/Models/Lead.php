@@ -10,11 +10,13 @@ class Lead {
     private ?string $email;
     private ?string $phone;
     private ?string $source;
-    private LeadStatus $status;
     private ?string $notes;
+    private ?string $createdAt;
+    private ?string $updatedAt;
+    private LeadStatus $status;
     private int $userId;
 
-    public function __construct(string $name, string $company, int $userId, ?string $email = null, ?string $phone = null, ?string $source = null, ?string $notes = null, LeadStatus $status = LeadStatus::NEW, ?int $id = null) {
+    public function __construct(string $name, string $company, int $userId, ?string $email = null, ?string $phone = null, ?string $source = null, ?string $notes = null, ?string $createdAt = null, ?string $updatedAt = null, LeadStatus $status = LeadStatus::NEW, ?int $id = null) {
         $this->setName($name);
         $this->setCompany($company);
 
@@ -23,6 +25,8 @@ class Lead {
         $this->phone = $phone;
         $this->source = $source;
         $this->notes = $notes;
+        $this->createdAt = $createdAt;
+        $this->updatedAt = $updatedAt;
         $this->status = $status;
         $this->id = $id;
     }
@@ -51,15 +55,43 @@ class Lead {
         $this->company = $company;
     }
 
+    public function copy(?string $name = null, ?string $company = null, ?int $userId = null, ?string $email = null, ?string $phone = null, ?string $source = null, ?string $notes = null, ?LeadStatus $status = null): Lead {
+        $copyName = $name ?? $this->name;
+        $copyCompany = $company ?? $this->company;
+        $copyUserId = $userId ?? $this->userId;
+        $copyEmail = $email ?? $this->email;
+        $copyPhone = $phone ?? $this->phone;
+        $copySource = $source ?? $this->source;
+        $copyNotes = $notes ?? $this->notes;
+        $copyStatus = $status ?? $this->status;
+
+        return new Lead(
+            $copyName, 
+            $copyCompany, 
+            $copyUserId, 
+            $copyEmail, 
+            $copyPhone, 
+            $copySource, 
+            $copyNotes, 
+            $this->createdAt,
+            $this->updatedAt,
+            $copyStatus, 
+            $this->id
+        );
+    }
+
     public function toArray(): array {
         return [
+            "id" => $this->id,
             "name" => $this->name,
             "company" => $this->company,
             "email" => $this->email,
             "phone" => $this->phone,
             "source" => $this->source,
-            "status" => $this->status->value,
             "notes" => $this->notes,
+            "created_at" => $this->createdAt,
+            "updated_at" => $this->updatedAt,
+            "status" => $this->status->value,
             "user_id" => $this->userId
         ];
     }

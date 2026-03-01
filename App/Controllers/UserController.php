@@ -58,7 +58,11 @@ class UserController {
             $hash = password_hash($data['password'], PASSWORD_DEFAULT);
             $data['password'] = $hash;
 
-            $user = new User(name: $data['name'], email: $data['email'], passwordHash: $data['password']);
+            $user = new User(
+                name: $data['name'], 
+                email: $data['email'], 
+                passwordHash: $data['password']
+            );
 
             $id = $this->repository->create($user);
 
@@ -76,15 +80,26 @@ class UserController {
             $id = $req->params['id'];
             $data = $req->body;
 
+            $user = $this->repository->findById($id);
+            if (!$user) {
+            $res->status(404);
+            $res->json(["error" => "Not found"]);
+            return;
+            }
+
             if (!PolicyService::canUpdate($req->user, $id)) {
                 $res->status(403);
                 $res->json(["error" => "Forbidden"]);
                 return;
             }
 
-            $user = new User(name: $data['name'], email: $data['email'], passwordHash: $data['password']);
+            $updatedUser = $user->copy(
+                name: $data['name'] ?? null, 
+                email: $data['email'] ?? null, 
+                passwordHash: $data['password'] ?? null
+            );
 
-            $updated = $this->repository->update($id, $user);
+            $updated = $this->repository->update($id, $updatedUser);
 
             $res->status(200);
             $res->json(["updated" => $updated]);
@@ -97,6 +112,13 @@ class UserController {
 
     public function destroy(Request $req, Response $res) {
         $id = $req->params['id'];
+        
+        $user = $this->repository->findById($id);
+        if (!$user) {
+            $res->status(404);
+            $res->json(["error" => "Not found"]);
+            return;
+        }
 
         if (!PolicyService::canDelete($req->user, $id)) {
             $res->status(403);

@@ -8,13 +8,17 @@ class User {
     private string $name;
     private string $email;
     private string $passwordHash;
+    private ?string $createdAt;
+    private ?string $updatedAt;
     private UserRole $role;
 
-    public function __construct(string $name, string $email, string $passwordHash, UserRole $role = UserRole::USER, ?int $id = null) {
+    public function __construct(string $name, string $email, string $passwordHash, ?string $createdAt = null, ?string $updatedAt = null, UserRole $role = UserRole::USER, ?int $id = null) {
         $this->setName($name);
         $this->setEmail($email);
 
         $this->passwordHash = $passwordHash;
+        $this->createdAt = $createdAt;
+        $this->updatedAt = $updatedAt;
         $this->role = $role;
         $this->id = $id;
     }
@@ -39,11 +43,31 @@ class User {
         $this->email = $email;
     }
 
+    public function copy(?string $name = null, ?string $email = null, ?string $passwordHash = null, ?UserRole $role = null): User {
+        $copyName = $name ?? $this->name;
+        $copyEmail = $email ?? $this->email;
+        $copyPasswordHash = $passwordHash ?? $this->passwordHash;
+        $copyRole = $role ?? $this->role;
+
+        return new User(
+            $copyName, 
+            $copyEmail, 
+            $copyPasswordHash, 
+            $this->createdAt,
+            $this->updatedAt,
+            $copyRole, 
+            $this->id
+        );
+    }
+
     public function toArray(): array {
         return [
+            "id" => $this->id,
             "name" => $this->name,
             "email" => $this->email,
             "password_hash" => $this->passwordHash,
+            "created_at" => $this->createdAt,
+            "updated_at" => $this->updatedAt,
             "role" => $this->role->value
         ];
     }
